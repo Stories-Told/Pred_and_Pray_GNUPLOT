@@ -1,4 +1,5 @@
 #include "ElkHerd.h"
+#include <cstddef>
 
 ElkHerd::ElkHerd()
 {
@@ -8,6 +9,7 @@ ElkHerd::ElkHerd()
     positionY = 0.0;
     age = 0;
     id = 0;
+    next = NULL;
 }
 
 ElkHerd::~ElkHerd()

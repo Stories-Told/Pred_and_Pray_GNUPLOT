@@ -26,6 +26,12 @@ class ElkHerd
         int Getid() { return id; }
         void Setid(int val) {id = val;}
 
+        // Linked list
+        ElkHerd *GetNext() { return next; }
+        void SetNext( ElkHerd *n) { next = n; }
+
+
+
     protected:
 
     private:
@@ -35,9 +41,9 @@ class ElkHerd
         double positionY;
         int age;
         int id;
-        // Starts the linked list
-        // first node = head
-        ElkHerd* next;
+        // Linked list
+        ElkHerd *next;
+
 };
 
 #endif // ELKHERD_H
