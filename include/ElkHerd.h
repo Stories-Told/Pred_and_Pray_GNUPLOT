@@ -35,6 +35,9 @@ class ElkHerd
         double positionY;
         int age;
         int id;
+        // Starts the linked list
+        // first node = head
+        ElkHerd* next;
 };
 
 #endif // ELKHERD_H
