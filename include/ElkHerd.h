@@ -1,6 +1,9 @@
 #ifndef ELKHERD_H
 #define ELKHERD_H
 
+#include "ElkMaster.h"
+
+using namespace std;
 
 class ElkHerd
 {
@@ -30,6 +33,8 @@ class ElkHerd
         ElkHerd *GetNext() { return next; }
         void SetNext( ElkHerd *n) { next = n; }
 
+        void CreateElkHerd(double dx, double dy, int i, std::fstream &foutPositions,
+                           ElkMaster eMaster);
 
 
     protected:

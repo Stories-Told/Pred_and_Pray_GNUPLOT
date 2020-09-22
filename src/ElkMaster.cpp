@@ -1,4 +1,14 @@
+#include <iostream>
+#include <fstream>
+#include <ctime>
+#include <random>
+#include <cstdlib>
+#include <sstream>
 #include "ElkMaster.h"
+#include "ElkHerd.h"
+#include "Wolf.h"
+
+using namespace std;
 
 ElkMaster::ElkMaster()
 {

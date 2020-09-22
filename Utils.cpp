@@ -1,6 +1,6 @@
-#include <ctime>
 #include <iostream>
 #include <fstream>
+#include <ctime>
 #include <random>
 #include <cstdlib>
 #include <sstream>
@@ -10,6 +10,13 @@
 #include "Utils.h"
 
 using namespace std;
+
+// GLOBAL SEED FOR RANDOM GENERATOR
+const unsigned int seed = time(0);
+// RANDOM NUMBER GENERATOR
+mt19937_64 emGPTR(seed);
+// RANDOM NUMBER DISTRIBUTORS FOR THE ELK MASTER
+normal_distribution<double> emdist(0, 5.0); // Elk master speed (5.0)
 
 void CreateCommandFile(std::fstream &foutCommand)
 {
@@ -24,14 +31,10 @@ void CreateCommandFile(std::fstream &foutCommand)
 
 void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
 {
-    // Creates the random number generator
-    default_random_engine * gptr;
-    gptr = new default_random_engine(time(NULL));
-
-    // Create variable that holds random number
-    normal_distribution<double> emdist(0,5.0); // Elk master speed (5.0)
-    normal_distribution<double> edist(0, 1.5); // Elk herd speed (1.5)
-    normal_distribution<double> wdist(0, 1.0); // Wolf speed(5.0)
+    // Classes
+    ElkMaster eMaster;
+    ElkHerd eHerd;
+    Wolf wPredator;
 
     // String Variables to hold values for writing out to files
     string pngfile;
@@ -39,16 +42,13 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
     string index;
 
     // Variables for elk master, elk herd, and wolves
-    double dx, dy; // Random positions for x and y
-    ElkMaster eMaster;
-    Wolf predator;
+    double dx = 0.0, dy =  0.0; // Random positions for x and y
 
     // Creates the .dat files for gnuplot to plot the coordinates
     // does all the graphing. '< 20' = the amount of .pngs that get made
     for(int i = 0; i < 20; i++)
     {
         index = to_string(i); // converts numbered values to strings each loop
-
         // creates png file names for the graphs to be saved to each loop
         pngfile = "output" + index + ".png";
         // creates the name for the file and makes it a .dat each loop
@@ -57,10 +57,10 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
         // creates the .dat files with names going up in value
         foutPositions.open(fileName.c_str(), ios::out);
 
-//-------------------------------------------------------------------------------
+        // Creates the Master, Herd, and Wolves
         // Write the herd masters positions
-        dx = emdist(*gptr); // sets a random number to dx
-        dy = emdist(*gptr); // sets a random number to dy
+        dx = emdist(emGPTR); // sets a random number to dx
+        dy = emdist(emGPTR); // sets a random number to dy
 
         // Herd masters location
         eMaster.SetpositionX(dx);
@@ -70,96 +70,11 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
                       << i + eMaster.GetpositionY() << " "
                       << ".3" << endl; // ".3" size of dot
 
-//-------------------------------------------------------------------------------
-        // Variables for the Elk Herd Link list
-        ElkHerd *head = NULL;
-        ElkHerd *current = NULL;
-        ElkHerd *eHerd = NULL;
-        int countHerdAmount = 0;
 
-        // Elk herd for loop
-        // Create elk herd data in a link list
-        while (countHerdAmount < 10)
-        {
-            // Create a new eHerd each loop
-            // and store it into the next link list location
-            eHerd = new ElkHerd;
+        eHerd.CreateElkHerd(dx, dy, i, foutPositions, eMaster);
+        wPredator.CreateWolves(dx, dy, i, foutPositions, eMaster);
 
-            // Generates random number used for position data
-            dx = edist(*gptr);
-            dy = edist(*gptr);
-
-            // Stores the x and y position in the current eHerd
-            eHerd->SetpositionX(eMaster.GetpositionX() - dx);
-            eHerd->SetpositionY(eMaster.GetpositionY() - dy);
-
-            //TODO set the elk herd IDs
-
-            // if statement to check if head is NULL
-            // meaning if it is NULL then that is the first spot
-            // in the linked list and store the first eHerd there
-            if(head == NULL)
-            {
-                head = eHerd;
-            }
-            // After the first loop this else statement will execute
-            // where it will move forward to the next link list spot
-            else
-            {
-                eHerd->SetNext(head);
-                head = eHerd;
-            }
-            // Keeps track of counting in order to exit the
-            // while loop at the value determined
-            countHerdAmount++;
-        }
-        // Reset the counter for the while loop
-        countHerdAmount = 0;
-
-        // Write out the elk herd data
-        current = head;
-        while(current != NULL)
-        {
-            if(current != head)
-            {
-                foutPositions << endl;
-            }
-
-            foutPositions << i + current->GetpositionX() << " "
-                          << i + current->GetpositionY() << " "
-                          << ".15" << endl; // ".15" size of dot
-
-            // Move down the list
-            current = current->GetNext();
-        }
-
-        // Delete the linked list
-        current = head;
-        while (current != NULL)
-        {
-            head = current->GetNext();
-            delete current;
-            current = head;
-        }
-        delete head;
-
-//-------------------------------------------------------------------------------
-
-        // Wolves for loop
-        for (int w  = 0; w < 5; w++) // w = wolf
-        {
-            dx = wdist(*gptr);
-            dy = wdist(*gptr);
-
-            predator.SetpositionX((eHerd->GetpositionX()) + w);
-            predator.SetpositionY(dy + 10);
-
-            foutPositions << i + predator.GetpositionX() << " "
-                          << i + predator.GetpositionY() << " "
-                          << ".1" << endl; // ".1" size of dot
-        }
-
-        // Close elk file
+        // Close positioning file
         foutPositions.close();
 
         //***BEGIN WRITING TO COMMAND.TXT FOR GRAPHIC THE DOTS TO GNUPLOT******
@@ -173,7 +88,7 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
     foutCommand << "pause -1" << endl;
     //****END WRITING TO COMMAND.TXT*******
 
-    // Close gnuplot file
+    // Close gnuplot command file
     foutCommand.close();
 }
 
@@ -181,3 +96,4 @@ void RunGnuPlot()
 {
     system("\"C:\\Program Files\\gnuplot\\bin\\wgnuplot.exe\" command.txt");
 }
+

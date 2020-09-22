@@ -1,6 +1,7 @@
 #ifndef ELKMASTER_H
 #define ELKMASTER_H
 
+using namespace std;
 
 class ElkMaster
 {
@@ -19,8 +20,6 @@ class ElkMaster
 
         double GetpositionY() { return positionY; }
         void SetpositionY(double val) { positionY = val; }
-
-    protected:
 
     private:
         double health;
