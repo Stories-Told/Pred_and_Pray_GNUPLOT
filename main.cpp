@@ -4,6 +4,7 @@
 #include <random>
 #include <cstdlib>
 #include <sstream>
+#include "Animals.h"
 #include "Utils.h"
 
 using namespace std;

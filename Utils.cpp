@@ -4,21 +4,12 @@
 #include <random>
 #include <cstdlib>
 #include <sstream>
-#include "Wolf.h"
-#include "ElkMaster.h"
-#include "ElkHerd.h"
+#include "Animals.h"
 #include "Utils.h"
 
 using namespace std;
 
-// GLOBAL SEED FOR RANDOM GENERATOR
-const unsigned int seed = time(0);
-// RANDOM NUMBER GENERATOR
-mt19937_64 emGPTR(seed);
-// RANDOM NUMBER DISTRIBUTORS FOR THE ELK MASTER
-normal_distribution<double> emdist(0, 5.0); // Elk master speed (5.0)
-
-void CreateCommandFile(std::fstream &foutCommand)
+void CreateCommandFile(fstream &foutCommand)
 {
     // Makes the command file for gnuplot to read
     foutCommand.open("command.txt",ios::out);
@@ -31,10 +22,8 @@ void CreateCommandFile(std::fstream &foutCommand)
 
 void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
 {
-    // Classes
-    ElkMaster eMaster;
-    ElkHerd eHerd;
-    Wolf wPredator;
+    // Class accessor
+    Animals animals;
 
     // String Variables to hold values for writing out to files
     string pngfile;
@@ -57,27 +46,17 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
         // creates the .dat files with names going up in value
         foutPositions.open(fileName.c_str(), ios::out);
 
-        // Creates the Master, Herd, and Wolves
-        // Write the herd masters positions
-        dx = emdist(emGPTR); // sets a random number to dx
-        dy = emdist(emGPTR); // sets a random number to dy
-
-        // Herd masters location
-        eMaster.SetpositionX(dx);
-        eMaster.SetpositionY(dy);
-        // saves the destination data into the files for elk master
-        foutPositions << i + eMaster.GetpositionX() << " "
-                      << i + eMaster.GetpositionY() << " "
-                      << ".3" << endl; // ".3" size of dot
-
-
-        eHerd.CreateElkHerd(dx, dy, i, foutPositions, eMaster);
-        wPredator.CreateWolves(dx, dy, i, foutPositions, eMaster);
+        // Creates the elk master, elk herd, and wolves data
+        // and writes their positions to the foutPositions .dat files
+        animals.CreateElkMaster(dx, dy, i, foutPositions);
+        animals.CreateElkHerd(dx, dy, i, foutPositions);
+        animals.CreateWolves(dx, dy, i, foutPositions);
 
         // Close positioning file
+        // So that a new one is created next loop
         foutPositions.close();
 
-        //***BEGIN WRITING TO COMMAND.TXT FOR GRAPHIC THE DOTS TO GNUPLOT******
+        //***BEGIN WRITING TO COMMAND.TXT FOR GRAPHING THE DOTS TO GNUPLOT******
         foutCommand << "set output \'" << pngfile << "\'" << endl;
         foutCommand << "plot \'" << fileName
                     << "\' with circles linecolor rgb \"#9ACD32\" fill solid noborder"
@@ -96,4 +75,3 @@ void RunGnuPlot()
 {
     system("\"C:\\Program Files\\gnuplot\\bin\\wgnuplot.exe\" command.txt");
 }
-

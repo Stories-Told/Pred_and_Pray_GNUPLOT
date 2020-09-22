@@ -2,11 +2,10 @@
 
 #ifndef Utils
 #define Utils
+using namespace std;
 
-#include "ElkMaster.h"
-
-void CreateCommandFile(std::fstream &foutCommand);
-void GraphPredAndPray(std::fstream &foutPositions, std::fstream &foutCommand);
+void CreateCommandFile(fstream &foutCommand);
+void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand);
 void RunGnuPlot();
 
 #endif // Utils
