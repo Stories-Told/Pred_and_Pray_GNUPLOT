@@ -22,7 +22,7 @@ class Animals
         double mGetPositionY() { return mPositionY; }
         void mSetPositionY(double val) { mPositionY = val; }
 
-        void CreateElkMaster(double dx, double dy, int i, fstream &foutPositions);
+        void CreateElkMaster(int i, fstream &foutPositions);
 
         // START ELK HERD
         double hGetHealth() { return hHealth; }
@@ -43,7 +43,7 @@ class Animals
         int hGetID() { return hID; }
         void hSetID(int val) { hID = val; }
 
-        void CreateElkHerd(double dx, double dy, int i, fstream &foutPositions);
+        void CreateElkHerd(int i, fstream &foutPositions);
 
         // Linked list Elk Herd
         Animals *hGetNext() { return hNext; }
@@ -59,11 +59,14 @@ class Animals
         double wGetPositionY() { return wPositionY; }
         void wSetPositionY(double val) { wPositionY = val; }
 
+        int wGetID() { return wID; }
+        void wSetID(double val) { wID = val; }
+
         // Linked list Wolves
         Animals *wGetNext() { return wNext; }
         void wSetNext(Animals *w) { wNext = w; }
 
-        void CreateWolves(double dx, double dy, int i, fstream &foutPositions);
+        void CreateWolves(int i, fstream &foutPositions);
 
     private:
         // Start elk master
@@ -86,6 +89,7 @@ class Animals
         double wSpeed;
         double wPositionX;
         double wPositionY;
+        int wID;
         // Wolf linked list
         Animals *wNext;
 };

@@ -13,7 +13,7 @@ int main()
 {
     // Variables for creating .txt files to hold the data
     fstream foutCommand; // Set up gnuplot
-    fstream foutPositions; // Elk data
+    fstream foutPositions; // positioning data
 
     // Runs function from Utils .cpp to create
     // the command.txt file, which gnuplot
@@ -22,6 +22,8 @@ int main()
 
     // Runs function from Utils .cpp to graph the
     // dots for Elk Master, Herd, and Wolves
+    // Calls the 3 functions inside Animals class
+    // to create the graphing data
     Utils::GraphPredAndPray(foutPositions, foutCommand);
 
     // Runs gnuplot

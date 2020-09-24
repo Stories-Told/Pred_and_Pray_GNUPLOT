@@ -5,21 +5,9 @@
 #include <cstdlib>
 #include <sstream>
 #include "Animals.h"
+#include "Utils.h"
 
 using namespace std;
-
-
-// TODO add random generator to the Utils.h
-// GLOBAL SEED FOR RANDOM GENERATORS
-const unsigned int seed = time(0);
-// RANDOM NUMBER GENERATORS
-mt19937_64 emGPTR(seed);
-mt19937_64 eGPTR(seed);
-mt19937_64 wGPTR(seed);
-// RANDOM NUMBER DISTRIBUTORS FOR THE HERD
-normal_distribution<double> emdist(0, 5.0); // Elk master speed (5.0)
-normal_distribution<double> edist(0, 1.5); // Elk herd speed (1.5)
-normal_distribution<double> wdist(0, 1.0); // Wolf speed(5.0) //TODO set wolf speed to 5
 
 // GLOBAL CLASS
 Animals animals;
@@ -28,9 +16,10 @@ Animals::Animals()
 {
     // Start elk master
     mHealth = 100.0;
-    mSpeed = 5.0;
+    mSpeed = 1.5; // TODO reset to 5.0 after testing
     mPositionX = 1.0;
     mPositionY = 5.0;
+
     // Start elk herd
     hHealth = 100.0;
     hSpeed = 1.5;
@@ -39,10 +28,12 @@ Animals::Animals()
     hAge = 0;
     hID = 0;
     hNext = NULL;
+
     // Start wolves
-    wSpeed = 5.0;
+    wSpeed = 1.5; // TODO reset to 5.0 after testing
     wPositionX = 0.0;
     wPositionY = 0.0;
+    wID = 0;
     wNext = NULL;
 }
 
@@ -52,32 +43,41 @@ Animals::~Animals()
 }
 
 // ELK MASTER
-void Animals::CreateElkMaster(double dx, double dy, int i, fstream &foutPositions)
+void Animals::CreateElkMaster(int i, fstream &foutPositions)
 {
-    // Creates the Master, Herd, and Wolves
-    // Write the herd masters positions
-    dx = emdist(emGPTR); // sets a random number to dx
-    dy = emdist(emGPTR); // sets a random number to dy
+    // Variables to hold position values
+    double dx = 0.0, dy =  0.0;
+
+    // Generate the Elk Master's postion values
+    dx = Utils::ElkMasterRandomGenerator(); // sets a random number to dx
+    dy = Utils::ElkMasterRandomGenerator(); // sets a random number to dy
 
     // Herd masters location
     animals.mSetPositionX(dx);
     animals.mSetPositionY(dy);
-    // saves the destination data into the files for elk master
+
+    // saves the elk master position data into the files for
     foutPositions << i + animals.mGetPositionX() << " "
                   << i + animals.mGetPositionY() << " "
                   << ".3" << endl; // ".3" size of dot
 }
 
 // ELK HERD
-void Animals::CreateElkHerd(double dx, double dy, int i, fstream &foutPositions)
+void Animals::CreateElkHerd(int i, fstream &foutPositions)
 {
     // Variables for the Elk Herd Link list
     Animals *head = NULL;
     Animals *current = NULL;
     Animals *eHerd = NULL;
+
+    // Variable to keep track of when to exit while loop
+    // For creating amount of elk herd
     int countHerdAmount = 0;
 
-    // Elk herd for loop
+    // Variables to hold position values
+    double dx = 0.0, dy =  0.0;
+
+    // Elk herd while loop
     // Create elk herd data in a link list
     while (countHerdAmount < 10)
     {
@@ -86,8 +86,8 @@ void Animals::CreateElkHerd(double dx, double dy, int i, fstream &foutPositions)
         eHerd = new Animals;
 
         // Generates random number used for position data
-        dx = edist(eGPTR);
-        dy = edist(eGPTR);
+        dx = Utils::ElkHerdRandomGenerator();
+        dy = Utils::ElkHerdRandomGenerator();
 
         // Stores the x and y position in the current eHerd
         eHerd->hSetPositionX(animals.mGetPositionX() - dx);
@@ -121,10 +121,8 @@ void Animals::CreateElkHerd(double dx, double dy, int i, fstream &foutPositions)
     current = head;
     while(current != NULL)
     {
-        if(current != head)
-        {
-            foutPositions << endl;
-        }
+        //TODO delete after testing
+        cout << "HERD: " << current->hGetID() << endl;
 
         foutPositions << i + current->hGetPositionX() << " "
                       << i + current->hGetPositionY() << " "
@@ -147,13 +145,17 @@ void Animals::CreateElkHerd(double dx, double dy, int i, fstream &foutPositions)
 
 
 // WOLVES
-void Animals::CreateWolves(double dx, double dy, int i, fstream &foutPositions)
+void Animals::CreateWolves(int i, fstream &foutPositions)
 {
     // Variables for Wolf linked list
     Animals *head = NULL;
     Animals *current = NULL;
     Animals *wPredator = NULL;
+    // Variable to keep track of when to exit while loop
+    // For creating amount of wolves
     int countWolfAmount = 0;
+    // Variables to hold position values
+    double dx = 0.0, dy =  0.0;
 
     while (countWolfAmount < 5)
     {
@@ -161,16 +163,17 @@ void Animals::CreateWolves(double dx, double dy, int i, fstream &foutPositions)
         // and store it in the link list
         wPredator = new Animals;
 
-        //TODO set wolves id (first I need to make the gets and sets in the class)
-
         // Generate the wolf random x and y position data
-        dx = wdist(wGPTR);
-        dy = wdist(wGPTR);
+        dx = Utils::WolfRandomGenerator();
+        dy = Utils::WolfRandomGenerator();
 
         // Stores the x and y postion data in the current wPredator
         // TODO change to wolves follow the herd instead of master
         wPredator->wSetPositionX(animals.mGetPositionX() - dx);
         wPredator->wSetPositionY((animals.mGetPositionY() + 10) - dy);
+
+        // Set the wolves ID's
+        wPredator->wSetID(countWolfAmount);
 
         // if statement to check if head is NULL
         // meaning if it is NULL then that is the first spot
@@ -197,10 +200,8 @@ void Animals::CreateWolves(double dx, double dy, int i, fstream &foutPositions)
     current = head;
     while (current != NULL)
     {
-        if (current != head)
-        {
-            foutPositions << endl;
-        }
+        //TODO delete after testing
+        cout << "WOLF: " << current->wGetID() << endl;
 
         foutPositions << i + current->wGetPositionX() << " "
                       << i + current->wGetPositionY() << " "

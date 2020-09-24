@@ -34,11 +34,11 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="Utils.cpp" />
-		<Unit filename="Utils.h" />
 		<Unit filename="include/Animals.h" />
+		<Unit filename="include/Utils.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Animals.cpp" />
+		<Unit filename="src/Utils.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
