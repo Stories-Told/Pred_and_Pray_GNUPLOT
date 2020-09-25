@@ -9,7 +9,7 @@
 
 using namespace std;
 
-// GLOBAL SEED FOR RANDOM GENERATORS
+// GLOBAL SEED FOR RANDOM GENERATOR
 const unsigned int seed = time(0);
 // RANDOM NUMBER GENERATORS
 mt19937_64 rGen(seed);
@@ -50,9 +50,13 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
 
         // Creates the elk master, elk herd, and wolves data
         // and writes their positions to the foutPositions .dat files
-        animals.CreateElkMaster(i, foutPositions);
-        animals.CreateElkHerd(i, foutPositions);
-        animals.CreateWolves(i, foutPositions);
+        // deletes all the link lists at the end
+        animals.CreateElkMaster();
+        animals.CreateElkHerd();
+        animals.CreateWolves();
+        animals.WriteOutPositionData(i, foutPositions);
+        animals.DoesWolfKillHerd();
+        animals.DeleteAllLinkList();
 
         // Close positioning file
         // So that a new one is created next loop
