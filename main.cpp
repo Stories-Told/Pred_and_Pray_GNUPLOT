@@ -15,6 +15,11 @@ int main()
     fstream foutCommand; // Set up gnuplot
     fstream foutPositions; // positioning data
 
+    // Displays the menu of the application
+    // allows user to set grid size,
+    // set elk herd amount, and set amount of wolves
+    Utils::RunMenu();
+
     // Runs function from Utils .cpp to create
     // the command.txt file, which gnuplot
     // will read to create the graphic output

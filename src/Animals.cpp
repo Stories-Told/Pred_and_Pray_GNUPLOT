@@ -41,6 +41,7 @@ Animals::Animals()
     wPositionX = 0.0;
     wPositionY = 0.0;
     wID = 0;
+    numberOfWolvesAlive = 5;
     wNext = NULL;
 }
 
@@ -77,7 +78,7 @@ void Animals::CreateElkHerd()
 
     // Elk herd while loop
     // Create elk herd data in a link list
-    while (countHerdAmount < animals.GetNumberOfHerdAlive())
+    while (countHerdAmount < animals.hGetNumberOfHerdAlive())
     {
         // Create a new eHerd each loop
         // and store it into the next link list location
@@ -127,7 +128,7 @@ void Animals::CreateWolves()
     // Variables to hold position values
     double dx = 0.0, dy =  0.0;
 
-    while (countWolfAmount < 5)
+    while (countWolfAmount < animals.numberOfWolvesAlive)
     {
         // Create a new wolf each loop
         // and store it in the link list
@@ -213,9 +214,9 @@ void Animals::DoesWolfKillHerd()
     //TODO Write function to compare wolves to elk herd based off their age
     // and health. If the conditions are met then the wolves will kill it
 
-    if(animals.GetNumberOfHerdAlive() > 1)
+    if(animals.hGetNumberOfHerdAlive() > 1)
     {
-        animals.SetNumberOfHerdAlive(animals.GetNumberOfHerdAlive() - 1);
+        animals.hSetNumberOfHerdAlive(animals.hGetNumberOfHerdAlive() - 1);
     }
 }
 
@@ -238,4 +239,27 @@ void Animals::DeleteAllLinkList()
         wCurrent = wHead;
     }
     delete wHead;
+}
+
+
+void Animals::ChangeElkHerdAmount()
+{
+    int userHerdAmount;
+
+    cout << "ENTER HERD AMOUNT: ";
+    cin >> userHerdAmount;
+    cout << endl;
+
+    animals.hSetNumberOfHerdAlive(userHerdAmount);
+}
+
+void Animals::ChangeWolvesAmount()
+{
+    int userWolvesAmount;
+
+    cout << "ENTER WOLVES AMOUNT: ";
+    cin >> userWolvesAmount;
+    cout << endl;
+
+    animals.wSetNumberOfWolvesAlive(userWolvesAmount);
 }

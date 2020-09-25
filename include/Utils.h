@@ -3,6 +3,7 @@
 
 using namespace std;
 
+void RunMenu();
 void CreateCommandFile(fstream &foutCommand);
 void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand);
 void RunGnuPlot();

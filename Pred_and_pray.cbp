@@ -35,9 +35,11 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="include/Animals.h" />
+		<Unit filename="include/Grid.h" />
 		<Unit filename="include/Utils.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Animals.cpp" />
+		<Unit filename="src/Grid.cpp" />
 		<Unit filename="src/Utils.cpp" />
 		<Extensions>
 			<code_completion />
