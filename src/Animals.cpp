@@ -18,20 +18,20 @@ Animals *hCurrent = NULL;
 Animals *wHead = NULL;
 Animals *wCurrent = NULL;
 
+// TODO TESTING (Move out of global scope later)
+// Variables to save the elk masters position
+double elkMastersXPosition;
+double elkMastersYPosition;
+
 Animals::Animals()
 {
-    // Start elk master
-    mHealth = 100.0;
-    mSpeed = 1.5; // TODO reset to 5.0 after testing
-    mPositionX = 1.0;
-    mPositionY = 5.0;
-
     // Start elk herd
+    isElkMaster = false;
     hHealth = 100.0;
     hSpeed = 1.5;
     hPositionX = 0.0;
     hPositionY = 0.0;
-    hAge = 0;
+    hAge = 50.0;
     hID = 0;
     numberOfHerdAlive = 10;
     hNext = NULL;
@@ -50,20 +50,8 @@ Animals::~Animals()
     //dtor
 }
 
-void Animals::CreateElkMaster()
-{
-    // Variables to hold position values
-    double dx = 0.0, dy =  0.0;
-
-    // Generate the Elk Master's postion values
-    dx = Utils::ElkMasterRandomGenerator(); // sets a random number to dx
-    dy = Utils::ElkMasterRandomGenerator(); // sets a random number to dy
-
-    // Herd masters location
-    animals.mSetPositionX(dx);
-    animals.mSetPositionY(dy);
-}
-
+// Creates a linked list of elk. Elk master = the first one created
+// User selection at menu allows for creating more than the default value of elk
 void Animals::CreateElkHerd()
 {
     // Variable for the Elk Herd Link list
@@ -73,9 +61,6 @@ void Animals::CreateElkHerd()
     // For creating amount of elk herd
     int countHerdAmount = 0;
 
-    // Variables to hold position values
-    double dx = 0.0, dy =  0.0;
-
     // Elk herd while loop
     // Create elk herd data in a link list
     while (countHerdAmount < animals.hGetNumberOfHerdAlive())
@@ -84,16 +69,21 @@ void Animals::CreateElkHerd()
         // and store it into the next link list location
         eHerd = new Animals;
 
-        // Generates random number used for position data
-        dx = Utils::ElkHerdRandomGenerator();
-        dy = Utils::ElkHerdRandomGenerator();
-
-        // Stores the x and y position in the current eHerd
-        eHerd->hSetPositionX(animals.mGetPositionX() - dx);
-        eHerd->hSetPositionY(animals.mGetPositionY() - dy);
-
-        // Sets the Elk Herd's ID number
-        eHerd->hSetID(countHerdAmount);
+        // First object created will be the elk master and
+        // set the isElkMaster to true marking them as the master
+        if (countHerdAmount == 0 )
+        {
+            eHerd->hSetID(countHerdAmount);
+            eHerd->hSetIsElkMaster(true);
+        }
+        // Creates the elk herd after the master
+        else
+        {
+            // Stores the x,y position and ID in the current eHerd
+            eHerd->hSetID(countHerdAmount);
+            eHerd->hSetHealth(Utils::ElkHerdHealthRandomGenerator());
+            eHerd->hSetAge(Utils::ElkHerdAgeRandomGenerator());
+        }
 
         // if statement to check if head is NULL
         // meaning if it is NULL then that is the first spot
@@ -117,6 +107,38 @@ void Animals::CreateElkHerd()
     countHerdAmount = 0;
 }
 
+// Moves the elk in the link list, elk herd follows the movement of elk master
+void Animals::MoveElkHerd()
+{
+    double dx, dy;
+
+    hCurrent = hHead;
+    while (hCurrent != NULL)
+    {
+        if (hCurrent->hGetIsElkMaster() == true)
+        {
+            elkMastersXPosition = Utils::ElkMasterRandomGenerator();
+            elkMastersYPosition = Utils::ElkMasterRandomGenerator();
+
+            hCurrent->hSetPositionX(elkMastersXPosition);
+            hCurrent->hSetPositionY(elkMastersYPosition);
+        }
+        else
+        {
+            dx = Utils::ElkHerdRandomGenerator();
+            dy = Utils::ElkHerdRandomGenerator();
+
+            hCurrent->hSetPositionX(elkMastersXPosition - dx);
+            hCurrent->hSetPositionY(elkMastersYPosition - dy);
+        }
+
+
+        hCurrent = hCurrent->hGetNext();
+    }
+}
+
+// Creates a linked list of wolves. User selection at menu allows for creating
+// more than the default value.
 void Animals::CreateWolves()
 {
     // Variables for Wolf linked list
@@ -125,23 +147,12 @@ void Animals::CreateWolves()
     // Variable to keep track of when to exit while loop
     // For creating amount of wolves
     int countWolfAmount = 0;
-    // Variables to hold position values
-    double dx = 0.0, dy =  0.0;
 
     while (countWolfAmount < animals.numberOfWolvesAlive)
     {
         // Create a new wolf each loop
         // and store it in the link list
         wPredator = new Animals;
-
-        // Generate the wolf random x and y position data
-        dx = Utils::WolfRandomGenerator();
-        dy = Utils::WolfRandomGenerator();
-
-        // Stores the x and y postion data in the current wPredator
-        // TODO change to wolves follow the herd instead of master
-        wPredator->wSetPositionX(animals.mGetPositionX() - dx);
-        wPredator->wSetPositionY((animals.mGetPositionY() + 10) - dy);
 
         // Set the wolves ID's
         wPredator->wSetID(countWolfAmount);
@@ -168,21 +179,47 @@ void Animals::CreateWolves()
     countWolfAmount = 0;
 }
 
+// Moves the wolves in the link list, TODO change wolves to follow elk herd, not master
+void Animals::MoveWolves()
+{
+    // Variables to hold position data
+    double dx, dy;
+
+    wCurrent = wHead;
+    while (wCurrent != NULL)
+    {
+        dx = Utils::WolfRandomGenerator();
+        dy = Utils::WolfRandomGenerator();
+
+        wCurrent->wSetPositionX(elkMastersXPosition - dx);
+        wCurrent->wSetPositionY((elkMastersYPosition + 10) - dy);
+
+        wCurrent = wCurrent->wGetNext();
+    }
+}
+
+// Writes out to the .dat files (foutPositions) the newly updated positioning
+// data for the elk and wolves
 void Animals::WriteOutPositionData(int i, fstream &foutPositions)
 {
-    // ------------------ELK MASTER---------------------------
-    // saves the elk master position data into the files for
-    foutPositions << i + animals.mGetPositionX() << " "
-                  << i + animals.mGetPositionY() << " "
-                  << ".3" << endl; // ".3" size of dot
-
     // -----------------ELK HERD------------------------------
     // Write out the elk herd data to the .dat files
     hCurrent = hHead;
     while(hCurrent != NULL)
     {
+
         //TODO delete after testing
-        cout << "HERD: " << hCurrent->hGetID() << endl;
+        cout << "HERD: " << hCurrent->hGetID() << " HEALTH: " << hCurrent->hGetHealth()
+             << " IS MASTER?: " << hCurrent->hGetIsElkMaster()
+             << " AGE: " << hCurrent->hGetAge() << endl;
+
+
+        if (hCurrent->hGetIsElkMaster() == true)
+        {
+            foutPositions << i + hCurrent->hGetPositionX() << " "
+                      << i + hCurrent->hGetPositionY() << " "
+                      << ".5" << endl; // ".15" size of dot
+        }
 
         foutPositions << i + hCurrent->hGetPositionX() << " "
                       << i + hCurrent->hGetPositionY() << " "
@@ -208,18 +245,26 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
 
 }
 
-
+// Checks to see if a wolf will kill a elk, if so then delete that elk
+// from the linked list
 void Animals::DoesWolfKillHerd()
 {
     //TODO Write function to compare wolves to elk herd based off their age
     // and health. If the conditions are met then the wolves will kill it
 
-    if(animals.hGetNumberOfHerdAlive() > 1)
+    // DELETES A HERD IN THE LIST AND FILLS IN THE GAP
+    // Animals *Previous
+    // prev->setNext(Current->getnext);
+    // current->setnext(NULL);
+    // Delete current;
+
+    if(animals.hGetNumberOfHerdAlive() > 3)
     {
         animals.hSetNumberOfHerdAlive(animals.hGetNumberOfHerdAlive() - 1);
     }
 }
 
+// Deletes all the elk and wolves link lists to free up memory
 void Animals::DeleteAllLinkList()
 {
     hCurrent = hHead;
@@ -241,7 +286,7 @@ void Animals::DeleteAllLinkList()
     delete wHead;
 }
 
-
+// Called in the menu, changes the amount of elk that are created for simulation
 void Animals::ChangeElkHerdAmount()
 {
     int userHerdAmount;
@@ -253,6 +298,7 @@ void Animals::ChangeElkHerdAmount()
     animals.hSetNumberOfHerdAlive(userHerdAmount);
 }
 
+// Called in the menu, changes the amount of wolves that are create for simulation
 void Animals::ChangeWolvesAmount()
 {
     int userWolvesAmount;

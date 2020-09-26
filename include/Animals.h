@@ -9,22 +9,10 @@ class Animals
         Animals();
         virtual ~Animals();
 
-        // START ELK MASTER
-        double mGetHealth() { return mHealth; }
-        void mSetHealth(double val) { mHealth = val; }
-
-        double mGetSpeed() { return mSpeed; }
-        void mSetSpeed(double val) { mSpeed = val; }
-
-        double mGetPositionX() { return mPositionX; }
-        void mSetPositionX(double val) { mPositionX = val; }
-
-        double mGetPositionY() { return mPositionY; }
-        void mSetPositionY(double val) { mPositionY = val; }
-
-        void CreateElkMaster();
-
         // START ELK HERD
+        bool hGetIsElkMaster() { return isElkMaster; }
+        void hSetIsElkMaster(bool val) { isElkMaster = val; }
+
         double hGetHealth() { return hHealth; }
         void hSetHealth(double val) { hHealth = val; }
 
@@ -37,8 +25,8 @@ class Animals
         double hGetPositionY() { return hPositionY; }
         void hSetPositionY(double val) { hPositionY = val; }
 
-        int hGetAge() { return hAge; }
-        void hSetAge(int val) { hAge = val; }
+        double hGetAge() { return hAge; }
+        void hSetAge(double val) { hAge = val; }
 
         int hGetID() { return hID; }
         void hSetID(int val) { hID = val; }
@@ -47,6 +35,7 @@ class Animals
         void hSetNumberOfHerdAlive(int val) { numberOfHerdAlive = val; }
 
         void CreateElkHerd();
+        void MoveElkHerd();
 
         // Linked list Elk Herd
         Animals *hGetNext() { return hNext; }
@@ -73,6 +62,7 @@ class Animals
         void wSetNext(Animals *w) { wNext = w; }
 
         void CreateWolves();
+        void MoveWolves();
 
         //---------------------------------------------------------
 
@@ -84,18 +74,14 @@ class Animals
         void ChangeWolvesAmount();
 
     private:
-        // Start elk master
-        double mHealth;
-        double mSpeed;
-        double mPositionX;
-        double mPositionY;
 
         // Start elk herd
+        bool isElkMaster;
         double hHealth;
         double hSpeed;
         double hPositionX;
         double hPositionY;
-        int hAge;
+        double hAge;
         int hID;
         int numberOfHerdAlive;
         // Herd linked list

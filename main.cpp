@@ -15,7 +15,8 @@ int main()
     fstream foutCommand; // Set up gnuplot
     fstream foutPositions; // positioning data
 
-    // Displays the menu of the application
+    // Runs function from Utils .cpp to
+    // Display the menu of the application
     // allows user to set grid size,
     // set elk herd amount, and set amount of wolves
     Utils::RunMenu();
@@ -27,8 +28,8 @@ int main()
 
     // Runs function from Utils .cpp to graph the
     // dots for Elk Master, Herd, and Wolves
-    // Calls the 3 functions inside Animals class
-    // to create the graphing data
+    // runs functions from Animals class to move the herd
+    // and wolves. Deletes the linked lists after finishing
     Utils::GraphPredAndPray(foutPositions, foutCommand);
 
     // Runs gnuplot

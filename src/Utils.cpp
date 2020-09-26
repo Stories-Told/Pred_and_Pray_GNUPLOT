@@ -11,15 +11,15 @@
 
 using namespace std;
 
-
 // GLOBAL SEED FOR RANDOM GENERATOR
 const unsigned int seed = time(0);
 // RANDOM NUMBER GENERATORS
 mt19937_64 rGen(seed);
 
+// Creates a menu and allows user to set grid size, herd amount, and wolf amount
 void RunMenu()
 {
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < 1; i++)
     {
         // Artists unknown(ascii.co.uk/art/elk)
         cout << "                                          _.--\"\"\"--,"   << endl;
@@ -104,6 +104,7 @@ void RunMenu()
     }
 }
 
+// Creates the command.txt file that creates the basic x,y graph
 void CreateCommandFile(fstream &foutCommand)
 {
     // Class accessor
@@ -116,11 +117,13 @@ void CreateCommandFile(fstream &foutCommand)
     foutCommand.open("command.txt",ios::out);
     foutCommand << "set xlabel \"X\"" << endl;
     foutCommand << "set ylabel \"Y\"" << endl;
-    // Sets the x and y amount for the grid
+    // Calls function from Grid class to set the x and y size of grid
     getGrid.OutputGridToCommand(foutCommand);
     foutCommand << "set terminal png" << endl;
 }
 
+// Creates the Elk and Wolves, moves the elk and wolves, and deletes the linked lists for
+// the elk and wolves
 void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
 {
     // Class accessor
@@ -131,6 +134,10 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
     string pngfile;
     string fileName;
     string index;
+
+    // Create the elk master, herd, and wolves
+    animals.CreateElkHerd();
+    animals.CreateWolves();
 
     // Creates the .dat files for gnuplot to plot the coordinates
     // does all the graphing. '< 20' = the amount of .pngs that get made
@@ -145,15 +152,15 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
         // creates the .dat files with names going up in value
         foutPositions.open(fileName.c_str(), ios::out);
 
-        // Creates the elk master, elk herd, and wolves data
-        // and writes their positions to the foutPositions .dat files
-        // deletes all the link lists at the end
-        animals.CreateElkMaster();
-        animals.CreateElkHerd();
-        animals.CreateWolves();
+        // Moves the Elk Master, Elk Herd, and Wolves
+        // After moving it, it writes out the new positioning data to
+        // the .dat file and then checks to see if any wolves killed a elk
+        animals.MoveElkHerd();
+        animals.MoveWolves();
+        // Takes the newly updated elk and wolf move positions and writes it out to
+        // the .dat file(foutPositions)
         animals.WriteOutPositionData(i, foutPositions);
         animals.DoesWolfKillHerd();
-        animals.DeleteAllLinkList();
 
         // Close positioning file
         // So that a new one is created next loop
@@ -166,6 +173,9 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
                     << endl;
     }
 
+    // Delete the link lists
+    animals.DeleteAllLinkList();
+
     // Pauses gnuplot until user hits enter
     foutCommand << "pause -1" << endl;
     //****END WRITING TO COMMAND.TXT*******
@@ -174,31 +184,62 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
     foutCommand.close();
 }
 
+// Calls system to run gnuplot
 void RunGnuPlot()
 {
     system("\"C:\\Program Files\\gnuplot\\bin\\wgnuplot.exe\" command.txt");
 }
 
+// Generates random number based off elk's class variable speed
 double ElkMasterRandomGenerator()
 {
+    // Sets elk master speed
     Animals elkMaster;
-    normal_distribution<double> emdist(0, elkMaster.mGetSpeed()); // Elk master speed (5.0)
+    normal_distribution<double> emdist(0, elkMaster.hGetSpeed()); // Elk master speed (5.0)
 
     return emdist(rGen);
 }
 
+// Generates random number based off elk's class variable speed
 double ElkHerdRandomGenerator()
 {
+    // Sets elk herd speed
     Animals elkHerd;
     normal_distribution<double> edist(0, elkHerd.hGetSpeed()); // Elk herd speed (1.5)
 
     return edist(rGen);
 }
 
+// Generates random number based off wolf's class variable speed
 double WolfRandomGenerator()
 {
+    // Sets wolves speed
     Animals wolf;
     normal_distribution<double> wdist(0, wolf.wGetSpeed()); // Wolf speed(5.0)
 
     return wdist(rGen);
 }
+
+// Generates random number for elk health, Based off elk's class variable health
+double ElkHerdHealthRandomGenerator()
+{
+    Animals herd;
+    uniform_real_distribution<double> edist(0, herd.hGetHealth());
+
+    return edist(rGen);
+}
+
+// Generates random number for elk age, Based off elk's class variable age
+double ElkHerdAgeRandomGenerator()
+{
+    Animals herd;
+    uniform_real_distribution<double> edist(0, herd.hGetAge());
+
+    return edist(rGen);
+}
+
+
+
+
+
+

@@ -12,4 +12,7 @@ double ElkMasterRandomGenerator();
 double ElkHerdRandomGenerator();
 double WolfRandomGenerator();
 
+double ElkHerdHealthRandomGenerator();
+double ElkHerdAgeRandomGenerator();
+
 #endif // Utils
