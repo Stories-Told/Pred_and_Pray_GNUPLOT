@@ -14,6 +14,7 @@ Animals animals;
 //ELK HERD POINTERS
 Animals *hHead = NULL;
 Animals *hCurrent = NULL;
+Animals *previous = NULL;
 //WOLF POINTERS
 Animals *wHead = NULL;
 Animals *wCurrent = NULL;
@@ -40,9 +41,13 @@ Animals::Animals()
     wSpeed = 1.5; // TODO reset to 5.0 after testing
     wPositionX = 0.0;
     wPositionY = 0.0;
+    wAttackStrength = 60.0;
     wID = 0;
     numberOfWolvesAlive = 5;
     wNext = NULL;
+
+    // Start Misc
+    noMoreKillsPossible = false;
 }
 
 Animals::~Animals()
@@ -147,6 +152,8 @@ void Animals::CreateWolves()
     // Variable to keep track of when to exit while loop
     // For creating amount of wolves
     int countWolfAmount = 0;
+    // Variable to hold a random number for wolves attack strength
+    double wolfStrength;
 
     while (countWolfAmount < animals.numberOfWolvesAlive)
     {
@@ -154,8 +161,11 @@ void Animals::CreateWolves()
         // and store it in the link list
         wPredator = new Animals;
 
+        wolfStrength = Utils::WolfAttackStrengthRandomGenerator();
+
         // Set the wolves ID's
         wPredator->wSetID(countWolfAmount);
+        wPredator->wSetAttackStrength(wolfStrength);
 
         // if statement to check if head is NULL
         // meaning if it is NULL then that is the first spot
@@ -217,8 +227,8 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
         if (hCurrent->hGetIsElkMaster() == true)
         {
             foutPositions << i + hCurrent->hGetPositionX() << " "
-                      << i + hCurrent->hGetPositionY() << " "
-                      << ".5" << endl; // ".15" size of dot
+                          << i + hCurrent->hGetPositionY() << " "
+                          << ".5" << endl; // ".15" size of dot
         }
 
         foutPositions << i + hCurrent->hGetPositionX() << " "
@@ -235,7 +245,10 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
     while (wCurrent != NULL)
     {
         //TODO delete after testing
-        cout << "WOLF: " << wCurrent->wGetID() << endl;
+        cout << "WOLF: " << wCurrent->wGetID()
+             << " ATTACK STRENGTH: " << wCurrent->wGetAttackStrength() << endl;
+
+
         foutPositions << i + wCurrent->wGetPositionX() << " "
                       << i + wCurrent->wGetPositionY() << " "
                       << ".1" << endl; //".1" = size of dot
@@ -246,21 +259,89 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
 }
 
 // Checks to see if a wolf will kill a elk, if so then delete that elk
-// from the linked list
+// from the linked list. If there are no more kills possible this function
+// will not run (unless the animals.noMoreKillsPossible is updated back to false)
 void Animals::DoesWolfKillHerd()
 {
-    //TODO Write function to compare wolves to elk herd based off their age
-    // and health. If the conditions are met then the wolves will kill it
+    // Variable to keep track of the amount of no kills recorded per loop
+    // if the amount of no kills = the amount of wolves, then
+    // there are no more kills possible and exits the function
+    int countNoKills = 0;
+    if (animals.noMoreKillsPossible == true) { return; }
 
-    // DELETES A HERD IN THE LIST AND FILLS IN THE GAP
-    // Animals *Previous
-    // prev->setNext(Current->getnext);
-    // current->setnext(NULL);
-    // Delete current;
-
-    if(animals.hGetNumberOfHerdAlive() > 3)
+    // Start of the comparing loop
+    // sets herd's current and wolf's current to the head node
+    // to begin the iteration through the linked lists
+    hCurrent = hHead;
+    wCurrent = wHead;
+    while (wCurrent != NULL)
     {
-        animals.hSetNumberOfHerdAlive(animals.hGetNumberOfHerdAlive() - 1);
+        // While loop to compare all the herd(amount of elk) to one wolf
+        // at at time(current wolf)
+        while (hCurrent != NULL)
+        {
+            // Compares the wolf's random generated strength to
+            // the elks random generated health. If the strength
+            // is greater than the elks health, the wolf will
+            // kill the elk and causes to break out of the elk's while loop,
+            // delete the elk, and then move to the next wolf in the list
+            if (wCurrent->wGetAttackStrength() > hCurrent->hGetHealth())
+            {
+                break;
+            }
+            // If the wolf's strength is not greater than the elk's health
+            // it outputs to the console which wolf id it is, his strength,
+            // the elk's id and his health. Then moves to the next herd
+            // in the link list to compare against the current wolf
+            else
+            {
+                cout << "WOLF " << wCurrent->wGetID() << " STRENGTH " << wCurrent->wGetAttackStrength()
+                     << " is less than ELK " << hCurrent->hGetID() << " HEALTH " << hCurrent->hGetHealth()
+                     << endl;
+
+                previous = hCurrent;
+                hCurrent = hCurrent->hGetNext();
+            }
+        }
+
+        // Either after breaking from the compare while loop or upon exit
+        // the following if, else if, else, will conduct the correct linked
+        // list deletion.
+        // if = no possible kill
+        // (if countNoKills = amount of wolves, then sets noMoreKillsPossible to true)
+        if (hCurrent == NULL)
+        {
+            cout << "NO KILL..." << endl;
+
+            countNoKills++;
+            if(countNoKills == animals.numberOfWolvesAlive) { animals.noMoreKillsPossible = true; }
+        }
+        // else if = the current elk is the the head elk
+        // makes current the head, then sets the head to the next one
+        // in the list, and then deletes current(old head link value)
+        else if(hCurrent == hHead)
+        {
+            cout << "HEAD " << hCurrent->hGetID() << " KILLED BY WOLF " << wCurrent->wGetID() << endl;
+            hCurrent = hHead;
+            hHead = hHead->hNext;
+            delete hCurrent;
+        }
+        // else = current elk anywhere else in the list
+        // sets previous's pointer to the node in front
+        // of the current elk node, and then deletes the current elk
+        else
+        {
+            cout << "Wolf " << wCurrent->wGetID() << " Kills elk " << hCurrent->hGetID() << endl;
+            previous->hNext = hCurrent->hNext;
+
+            delete hCurrent;
+        }
+
+        // Resets the herd back to the first one in the list
+        // for the next compare iteration for the next wolf
+        // and goes to the next wolf in the wolf linked list
+        hCurrent = hHead;
+        wCurrent= wCurrent->wGetNext();
     }
 }
 

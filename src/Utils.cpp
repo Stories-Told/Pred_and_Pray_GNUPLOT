@@ -238,6 +238,14 @@ double ElkHerdAgeRandomGenerator()
     return edist(rGen);
 }
 
+// Generates random number for wolves attack strength
+double WolfAttackStrengthRandomGenerator()
+{
+    Animals wolf;
+    uniform_real_distribution<double> wdist(0, wolf.wGetAttackStrength());
+
+    return wdist(rGen);
+}
 
 
 

@@ -51,6 +51,9 @@ class Animals
         double wGetPositionY() { return wPositionY; }
         void wSetPositionY(double val) { wPositionY = val; }
 
+        double wGetAttackStrength() { return wAttackStrength; }
+        void wSetAttackStrength(double val) { wAttackStrength = val; }
+
         int wGetID() { return wID; }
         void wSetID(double val) { wID = val; }
 
@@ -63,6 +66,10 @@ class Animals
 
         void CreateWolves();
         void MoveWolves();
+
+        // Start Misc
+        bool GetNoKillsPossible() {return noMoreKillsPossible;}
+        void SetNoKillsPossible(bool val) { noMoreKillsPossible = val; }
 
         //---------------------------------------------------------
 
@@ -91,10 +98,15 @@ class Animals
         double wSpeed;
         double wPositionX;
         double wPositionY;
+        double wAttackStrength;
+        bool wNoKillPossible;
         int wID;
         int numberOfWolvesAlive;
         // Wolf linked list
         Animals *wNext;
+
+        // Misc
+        bool noMoreKillsPossible;
 };
 
 #endif // ANIMALS_H

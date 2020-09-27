@@ -15,4 +15,6 @@ double WolfRandomGenerator();
 double ElkHerdHealthRandomGenerator();
 double ElkHerdAgeRandomGenerator();
 
+double WolfAttackStrengthRandomGenerator();
+
 #endif // Utils
