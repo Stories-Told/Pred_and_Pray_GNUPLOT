@@ -13,6 +13,9 @@ class Animals
         bool hGetIsElkMaster() { return isElkMaster; }
         void hSetIsElkMaster(bool val) { isElkMaster = val; }
 
+        bool hGetIsHealthy() { return isHealthy; }
+        void hSetIsHealthy(bool val) { isHealthy = val; }
+
         double hGetHealth() { return hHealth; }
         void hSetHealth(double val) { hHealth = val; }
 
@@ -25,8 +28,8 @@ class Animals
         double hGetPositionY() { return hPositionY; }
         void hSetPositionY(double val) { hPositionY = val; }
 
-        double hGetAge() { return hAge; }
-        void hSetAge(double val) { hAge = val; }
+        int hGetAge() { return hAge; }
+        void hSetAge(int val) { hAge = val; }
 
         int hGetID() { return hID; }
         void hSetID(int val) { hID = val; }
@@ -84,11 +87,12 @@ class Animals
 
         // Start elk herd
         bool isElkMaster;
+        bool isHealthy;
         double hHealth;
         double hSpeed;
         double hPositionX;
         double hPositionY;
-        double hAge;
+        int hAge;
         int hID;
         int numberOfHerdAlive;
         // Herd linked list

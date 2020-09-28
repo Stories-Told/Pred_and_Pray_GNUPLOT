@@ -28,11 +28,12 @@ Animals::Animals()
 {
     // Start elk herd
     isElkMaster = false;
+    isHealthy = true;
     hHealth = 100.0;
     hSpeed = 1.5;
     hPositionX = 0.0;
     hPositionY = 0.0;
-    hAge = 50.0;
+    hAge = 13.0; // average lifespan = 10-13 years
     hID = 0;
     numberOfHerdAlive = 10;
     hNext = NULL;
@@ -41,12 +42,13 @@ Animals::Animals()
     wSpeed = 1.5; // TODO reset to 5.0 after testing
     wPositionX = 0.0;
     wPositionY = 0.0;
-    wAttackStrength = 60.0;
+    wAttackStrength = 45.0;
     wID = 0;
     numberOfWolvesAlive = 5;
     wNext = NULL;
 
     // Start Misc
+    // TODO write function that will better check if there are no more kills possible
     noMoreKillsPossible = false;
 }
 
@@ -86,8 +88,9 @@ void Animals::CreateElkHerd()
         {
             // Stores the x,y position and ID in the current eHerd
             eHerd->hSetID(countHerdAmount);
-            eHerd->hSetHealth(Utils::ElkHerdHealthRandomGenerator());
+            eHerd->hSetIsHealthy(Utils::ElkHerdHealthyStatusRandomGenerator());
             eHerd->hSetAge(Utils::ElkHerdAgeRandomGenerator());
+            eHerd->hSetHealth(Utils::CreateElkHerdHealth(eHerd));
         }
 
         // if statement to check if head is NULL
@@ -212,17 +215,19 @@ void Animals::MoveWolves()
 // data for the elk and wolves
 void Animals::WriteOutPositionData(int i, fstream &foutPositions)
 {
+    fstream outputConsoleText;
+
     // -----------------ELK HERD------------------------------
     // Write out the elk herd data to the .dat files
     hCurrent = hHead;
     while(hCurrent != NULL)
     {
-
         //TODO delete after testing
         cout << "HERD: " << hCurrent->hGetID() << " HEALTH: " << hCurrent->hGetHealth()
              << " IS MASTER?: " << hCurrent->hGetIsElkMaster()
-             << " AGE: " << hCurrent->hGetAge() << endl;
-
+             << " AGE: " << hCurrent->hGetAge()
+             << " HEALTHY STATUS: " << hCurrent->hGetIsHealthy()
+             << endl;
 
         if (hCurrent->hGetIsElkMaster() == true)
         {
@@ -248,14 +253,12 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
         cout << "WOLF: " << wCurrent->wGetID()
              << " ATTACK STRENGTH: " << wCurrent->wGetAttackStrength() << endl;
 
-
         foutPositions << i + wCurrent->wGetPositionX() << " "
                       << i + wCurrent->wGetPositionY() << " "
                       << ".1" << endl; //".1" = size of dot
 
         wCurrent = wCurrent->wGetNext();
     }
-
 }
 
 // Checks to see if a wolf will kill a elk, if so then delete that elk
@@ -267,6 +270,8 @@ void Animals::DoesWolfKillHerd()
     // if the amount of no kills = the amount of wolves, then
     // there are no more kills possible and exits the function
     int countNoKills = 0;
+    bool passedSavingThrow = false;
+
     if (animals.noMoreKillsPossible == true) { return; }
 
     // Start of the comparing loop
@@ -287,9 +292,17 @@ void Animals::DoesWolfKillHerd()
             // delete the elk, and then move to the next wolf in the list
             if (wCurrent->wGetAttackStrength() > hCurrent->hGetHealth())
             {
+                // Calls function to roll 5 saving throws against attack
+                // if a 20 is rolled = saved
+                // if >3 saved rolls = saved
+                // if a 0 is rolled = death
+                // if <3 saved rolls = death
+                // stores a true or false in passedSavingThrow
+                passedSavingThrow = Utils::SavingThrowsGenerator();
+
                 break;
             }
-            // If the wolf's strength is not greater than the elk's health
+            // else the wolf's strength is not greater than the elk's health
             // it outputs to the console which wolf id it is, his strength,
             // the elk's id and his health. Then moves to the next herd
             // in the link list to compare against the current wolf
@@ -307,9 +320,9 @@ void Animals::DoesWolfKillHerd()
         // Either after breaking from the compare while loop or upon exit
         // the following if, else if, else, will conduct the correct linked
         // list deletion.
-        // if = no possible kill
+        // if = no possible kill or passed saving throws
         // (if countNoKills = amount of wolves, then sets noMoreKillsPossible to true)
-        if (hCurrent == NULL)
+        if (hCurrent == NULL || passedSavingThrow == true)
         {
             cout << "NO KILL..." << endl;
 

@@ -57,25 +57,30 @@ void RunMenu()
     // Variable to hold users menu choice
     int userSelection;
 
-    cout << "---WELCOME TO THE ELK SIMULATOR!---" << endl;
-    cout << "|    --------MAIN MENU-------     |" << endl;
-    cout << "|    |                      |     |" << endl;
-    cout << "|    | 1.) SET GRID SIZE    |     |" << endl;
-    cout << "|    | 2.) SET HERD AMOUNT  |     |" << endl;
-    cout << "|    | 3.) SET WOLF AMOUNT  |     |" << endl;
-    cout << "|    |                      |     |" << endl;
-    cout << "|    | TYPE 'RUN' TO LAUNCH |     |" << endl;
-    cout << "|    ------------------------     |" << endl;
-    cout << "-----------------------------------" << endl;
-
-    // Stores user choice to be used in switch statement
-    cin >> userSelection;
-
-    // Selects the mmenu choice based off user input
-    switch(userSelection)
+    // while loop that keeps running the menu in order to allow the user
+    // to enter as many options as they want until they enter 4 to
+    // run the simulatation
+    while (userSelection != 4)
     {
-    case 1:
-        // 1.) set grid size
+        cout << "---WELCOME TO THE ELK SIMULATOR!---" << endl;
+        cout << "|    --------MAIN MENU-------     |" << endl;
+        cout << "|    |                      |     |" << endl;
+        cout << "|    | 1.) SET GRID SIZE    |     |" << endl;
+        cout << "|    | 2.) SET HERD AMOUNT  |     |" << endl;
+        cout << "|    | 3.) SET WOLF AMOUNT  |     |" << endl;
+        cout << "|    | 4.) RUN              |     |" << endl;
+        cout << "|    | DEFAULT ANSWER = RUN |     |" << endl;
+        cout << "|    ------------------------     |" << endl;
+        cout << "-----------------------------------" << endl;
+
+        // Stores user choice to be used in switch statement
+        cin >> userSelection;
+
+        // Selects the mmenu choice based off user input
+        switch(userSelection)
+        {
+        case 1:
+            // 1.) set grid size
         {
             // Call function from Grid class to change
             // grid (x,y) size
@@ -83,8 +88,8 @@ void RunMenu()
             changeGridSize.ChangeGridSize();
         }
         break;
-    case 2:
-        // 2.) set herd amount
+        case 2:
+            // 2.) Set herd amount
         {
             // Calls function from Animals class to change
             // elk herd amount
@@ -92,8 +97,8 @@ void RunMenu()
             setElkAmount.ChangeElkHerdAmount();
         }
         break;
-    case 3:
-        // 3.) set wolf amount
+        case 3:
+            // 3.) Set wolf amount
         {
             // Calls function from Animals class to change
             // wolf amount
@@ -101,6 +106,22 @@ void RunMenu()
             setWolvesAmount.ChangeWolvesAmount();
         }
         break;
+        case 4:
+            // 4.) Run
+        {
+            cout << "RUNNING" << endl;
+        }
+        break;
+        default:
+            // Runs simulation
+        {
+            cout << "INVAILD SELECTION..." << endl;
+            userSelection = 4;
+        }
+        }
+
+        // Clear the console screen after each option
+        system("cls");
     }
 }
 
@@ -157,8 +178,6 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
         // the .dat file and then checks to see if any wolves killed a elk
         animals.MoveElkHerd();
         animals.MoveWolves();
-        // Takes the newly updated elk and wolf move positions and writes it out to
-        // the .dat file(foutPositions)
         animals.WriteOutPositionData(i, foutPositions);
         animals.DoesWolfKillHerd();
 
@@ -210,6 +229,88 @@ double ElkHerdRandomGenerator()
     return edist(rGen);
 }
 
+// Generates a random 0 or 1 for deciding elk healthy status
+bool ElkHerdHealthyStatusRandomGenerator()
+{
+    uniform_int_distribution<int> edist(0,1); // Generate random 0 or 1
+    int rolledNumber; // Store the random number
+    int numberOfZeroes = 0; // Counter for number of 0's rolled
+    int numberOfOnes = 0; // Counter for number of 1's rolled
+    bool healthyStatus; // Variable to return true or false
+
+    // For loop to roll 3 times
+    // Counts the amount of 0's and 1's rolled
+    for(int i = 0; i < 3; i++)
+    {
+        rolledNumber = edist(rGen);
+
+        if(rolledNumber == 0)
+        {
+            numberOfZeroes++;
+        }
+        else
+        {
+            numberOfOnes++;
+        }
+    }
+
+    // If number of 0's rolled > number of 1's rolled, elk is not healthy
+    // else number of 1's rolled > number of 0's rolled, elk is healthy
+    if (numberOfZeroes > numberOfOnes)
+    {
+        healthyStatus = false;
+    }
+    else
+    {
+        healthyStatus = true;
+    }
+
+    return healthyStatus;
+}
+
+// Create a dynamic function to create elk health based on
+// healthy status and age.
+// if age < 1 = negative impact on health (-25% health debuff)
+// if healthyStatus is false = negative impact on health (-60% health debuff)
+double CreateElkHerdHealth(Animals *eHerd)
+{
+    Animals herd;
+    uniform_real_distribution<double> edist(0, herd.hGetHealth());
+
+    double elkHealth;
+    double multipliedHealth;
+
+    elkHealth = edist(rGen);
+
+    if(eHerd->hGetAge() < 1)
+    {
+        multipliedHealth = elkHealth * 0.25;
+        elkHealth = elkHealth - multipliedHealth;
+
+        if(eHerd->hGetIsHealthy() == false)
+        {
+            multipliedHealth = elkHealth * 0.60;
+            elkHealth = elkHealth - multipliedHealth;
+        }
+    }
+    else if(eHerd->hGetIsHealthy() == false)
+    {
+        multipliedHealth = elkHealth * 0.60;
+        elkHealth = elkHealth - multipliedHealth;
+    }
+
+    return elkHealth; // Return health
+}
+
+// Generates random number for elk age, Based off elk's class variable age
+int ElkHerdAgeRandomGenerator()
+{
+    Animals herd;
+    uniform_int_distribution<int> edist(1, herd.hGetAge());
+
+    return edist(rGen);
+}
+
 // Generates random number based off wolf's class variable speed
 double WolfRandomGenerator()
 {
@@ -218,24 +319,6 @@ double WolfRandomGenerator()
     normal_distribution<double> wdist(0, wolf.wGetSpeed()); // Wolf speed(5.0)
 
     return wdist(rGen);
-}
-
-// Generates random number for elk health, Based off elk's class variable health
-double ElkHerdHealthRandomGenerator()
-{
-    Animals herd;
-    uniform_real_distribution<double> edist(0, herd.hGetHealth());
-
-    return edist(rGen);
-}
-
-// Generates random number for elk age, Based off elk's class variable age
-double ElkHerdAgeRandomGenerator()
-{
-    Animals herd;
-    uniform_real_distribution<double> edist(0, herd.hGetAge());
-
-    return edist(rGen);
 }
 
 // Generates random number for wolves attack strength
@@ -247,7 +330,57 @@ double WolfAttackStrengthRandomGenerator()
     return wdist(rGen);
 }
 
+// Called when a wolf is attempting a kill, Randomly generates a number between 0 - 20,
+// saved throw is a number >=12
+// critical save throw is roll of 20 = automatic save from kill
+// critical roll of 0 = automatic successful kill
+bool SavingThrowsGenerator()
+{
+    uniform_int_distribution<int> edist(0, 20); // Generate random between 0-20
+    int numberRolled = 0; // Stores the random number generated
+    int successfulSave = 0; // Counts the amount of saved throws
+    int unsuccessfulSave = 0; // Counts the amount of unsuccessful throws
+    bool savedThrow = false; // Stores whether saved or not and then is returned
 
+    cout << "ATTEMPTING KILL..." << endl;
+
+    for(int i = 0; i < 5;  i++)
+    {
+        numberRolled = edist(rGen);
+
+        if(numberRolled == 20)
+        {
+            cout << "ROLLED A CRITICAL SAVE " << numberRolled << endl;
+            return true;
+        }
+        else if(numberRolled == 0)
+        {
+            cout << "ROLLED A CRITICAL " << numberRolled << endl;
+            return false;
+        }
+        else if(numberRolled >= 12)
+        {
+            cout << "SAVED THROW " << numberRolled << endl;
+            successfulSave++;
+        }
+        else if(numberRolled < 12 )
+        {
+            cout << "UNSAVED THROW " << numberRolled << endl;
+            unsuccessfulSave++;
+        }
+    }
+
+    if (unsuccessfulSave > successfulSave)
+    {
+        savedThrow = false;
+    }
+    else
+    {
+        savedThrow = true;
+    }
+
+    return savedThrow;
+}
 
 
 
