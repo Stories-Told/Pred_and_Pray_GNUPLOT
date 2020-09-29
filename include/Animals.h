@@ -25,8 +25,14 @@ class Animals
         double hGetPositionX() { return hPositionX; }
         void hSetPositionX(double val) { hPositionX = val; }
 
+        double hGetAddedX() { return hAddedX; }
+        void hSetAddedX(double val) { hAddedX = val; }
+
         double hGetPositionY() { return hPositionY; }
         void hSetPositionY(double val) { hPositionY = val; }
+
+        double hGetAddedY() { return hAddedY; }
+        void hSetAddedY(double val) { hAddedY = val; }
 
         int hGetAge() { return hAge; }
         void hSetAge(int val) { hAge = val; }
@@ -71,11 +77,19 @@ class Animals
         void MoveWolves();
 
         // Start Misc
-        bool GetNoKillsPossible() {return noMoreKillsPossible;}
+        bool GetNoKillsPossible() { return noMoreKillsPossible; }
         void SetNoKillsPossible(bool val) { noMoreKillsPossible = val; }
+
+        double GetEndPointX() { return endPointX; }
+        void SetEndPointX(double val) { endPointX = val; }
+
+        double GetEndPointY() { return endPointY; }
+        void SetEndPointY(double val) { endPointY = val; }
 
         //---------------------------------------------------------
 
+        void CreateEndDestinationPoint();
+        void MovementEvaluator();
         void WriteOutPositionData(int i, fstream &foutPositions);
         void DoesWolfKillHerd();
         void DeleteAllLinkList();
@@ -91,7 +105,9 @@ class Animals
         double hHealth;
         double hSpeed;
         double hPositionX;
+        double hAddedX;
         double hPositionY;
+        double hAddedY;
         int hAge;
         int hID;
         int numberOfHerdAlive;
@@ -111,6 +127,8 @@ class Animals
 
         // Misc
         bool noMoreKillsPossible;
+        double endPointX;
+        double endPointY;
 };
 
 #endif // ANIMALS_H

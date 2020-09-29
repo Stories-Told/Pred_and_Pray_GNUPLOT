@@ -22,5 +22,6 @@ double WolfAttackStrengthRandomGenerator();
 
 // Start misc
 bool SavingThrowsGenerator();
+int EndDestinationPointRandomGenerator();
 
 #endif // Utils

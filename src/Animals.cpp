@@ -30,9 +30,11 @@ Animals::Animals()
     isElkMaster = false;
     isHealthy = true;
     hHealth = 100.0;
-    hSpeed = 1.5;
+    hSpeed = 3.0;
     hPositionX = 0.0;
+    hAddedX = 0.0;
     hPositionY = 0.0;
+    hAddedY = 0.0;
     hAge = 13.0; // average lifespan = 10-13 years
     hID = 0;
     numberOfHerdAlive = 10;
@@ -50,6 +52,8 @@ Animals::Animals()
     // Start Misc
     // TODO write function that will better check if there are no more kills possible
     noMoreKillsPossible = false;
+    endPointX = 50.0;
+    endPointY = 50.0;
 }
 
 Animals::~Animals()
@@ -118,6 +122,7 @@ void Animals::CreateElkHerd()
 // Moves the elk in the link list, elk herd follows the movement of elk master
 void Animals::MoveElkHerd()
 {
+    // Moving Positions
     double dx, dy;
 
     hCurrent = hHead;
@@ -127,6 +132,10 @@ void Animals::MoveElkHerd()
         {
             elkMastersXPosition = Utils::ElkMasterRandomGenerator();
             elkMastersYPosition = Utils::ElkMasterRandomGenerator();
+
+            MovementEvaluator();
+
+            cout << "ADDED X: " << animals.hGetAddedX() << " ADDED Y: " << animals.hGetAddedY() << endl;
 
             hCurrent->hSetPositionX(elkMastersXPosition);
             hCurrent->hSetPositionY(elkMastersYPosition);
@@ -211,6 +220,98 @@ void Animals::MoveWolves()
     }
 }
 
+// Creates a randomly generated end destination point
+void Animals::CreateEndDestinationPoint()
+{
+    animals.SetEndPointX(Utils::EndDestinationPointRandomGenerator());
+    animals.SetEndPointY(Utils::EndDestinationPointRandomGenerator());
+
+    cout << "END X: " << animals.GetEndPointX() << " END Y: " << animals.GetEndPointY() << endl;
+}
+
+// Evaluates the elk masters movements, making sure to always progress towards the randomized
+// destination point
+void Animals::MovementEvaluator()
+{
+    //TODO comment everything in this function
+    // End Position Location
+    double endDestX = animals.GetEndPointX();
+    double endDestY = animals.GetEndPointY();
+
+    double withinThresholdMinusX, withinThresholdPlusX, withinThresholdMinusY, withinThresholdPlusY;
+    double percentAmount = 0.03;
+
+    withinThresholdMinusX = animals.GetEndPointX() - (animals.GetEndPointX() * percentAmount);
+    withinThresholdPlusX = animals.GetEndPointX() + (animals.GetEndPointX() * percentAmount);
+
+    withinThresholdMinusY = animals.GetEndPointY() - (animals.GetEndPointY() * percentAmount);
+    withinThresholdPlusY = animals.GetEndPointY() + (animals.GetEndPointY() * percentAmount);
+
+    // Check to see if we are going in the correct direction
+    // if we are less than the end point x, then keep adding
+    if (animals.hGetAddedX() < endDestX)
+    {
+        // Keep adding the position data up to move forward
+        if (elkMastersXPosition < 0)
+        {
+            animals.hSetAddedX(animals.hGetAddedX() - elkMastersXPosition);
+        }
+        else
+        {
+            animals.hSetAddedX(animals.hGetAddedX() + elkMastersXPosition);
+        }
+    }
+    // Check to see if we are past the end point x
+    // if so than subtract from the added amount
+    else if (animals.hGetAddedX() > endDestX)
+    {
+        if (elkMastersXPosition < 0)
+        {
+            animals.hSetAddedX(animals.hGetAddedX() + elkMastersXPosition);
+        }
+        else
+        {
+            animals.hSetAddedX(animals.hGetAddedX() - elkMastersXPosition);
+        }
+    }
+
+    // Check to see if we are going in the correct direction
+    // if we are less than the end point y, then keep adding
+    if (animals.hGetAddedY() < endDestY)
+    {
+        if(elkMastersYPosition < 0)
+        {
+            animals.hSetAddedY(animals.hGetAddedY() - elkMastersYPosition);
+        }
+        else
+        {
+            animals.hSetAddedY(animals.hGetAddedY() + elkMastersYPosition);
+        }
+    }
+    // Check to see if we are past the end point x
+    // if so than subtract from the added amount
+    else if(animals.hGetAddedY() > endDestY)
+    {
+        if(elkMastersYPosition < 0)
+        {
+            animals.hSetAddedY(animals.hGetAddedY() + elkMastersYPosition);
+        }
+        else
+        {
+            animals.hSetAddedY(animals.hGetAddedY() - elkMastersYPosition);
+        }
+    }
+
+    if (withinThresholdMinusX <= animals.hGetAddedX() && animals.hGetAddedX() <= withinThresholdPlusX &&
+        withinThresholdMinusY <= animals.hGetAddedY() && animals.hGetAddedY() <= withinThresholdPlusY)
+    {
+        cin.ignore();
+        cout << "REACHED DESTINATION..." << endl;
+        cout << "X: " << animals.hGetAddedX() << " Y: " << animals.hGetAddedY() << endl;
+        cin.ignore();
+    }
+}
+
 // Writes out to the .dat files (foutPositions) the newly updated positioning
 // data for the elk and wolves
 void Animals::WriteOutPositionData(int i, fstream &foutPositions)
@@ -231,13 +332,13 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
 
         if (hCurrent->hGetIsElkMaster() == true)
         {
-            foutPositions << i + hCurrent->hGetPositionX() << " "
-                          << i + hCurrent->hGetPositionY() << " "
-                          << ".5" << endl; // ".15" size of dot
+            foutPositions << animals.hGetAddedX() + hCurrent->hGetPositionX() << " "
+                          << animals.hGetAddedY() + hCurrent->hGetPositionY() << " "
+                          << ".5" << endl; // ".5" size of dot
         }
 
-        foutPositions << i + hCurrent->hGetPositionX() << " "
-                      << i + hCurrent->hGetPositionY() << " "
+        foutPositions << animals.hGetAddedX() + hCurrent->hGetPositionX() << " "
+                      << animals.hGetAddedY() + hCurrent->hGetPositionY() << " "
                       << ".15" << endl; // ".15" size of dot
 
         // Move down the list
@@ -272,7 +373,10 @@ void Animals::DoesWolfKillHerd()
     int countNoKills = 0;
     bool passedSavingThrow = false;
 
-    if (animals.noMoreKillsPossible == true) { return; }
+    if (animals.noMoreKillsPossible == true)
+    {
+        return;
+    }
 
     // Start of the comparing loop
     // sets herd's current and wolf's current to the head node
@@ -327,7 +431,10 @@ void Animals::DoesWolfKillHerd()
             cout << "NO KILL..." << endl;
 
             countNoKills++;
-            if(countNoKills == animals.numberOfWolvesAlive) { animals.noMoreKillsPossible = true; }
+            if(countNoKills == animals.numberOfWolvesAlive)
+            {
+                animals.noMoreKillsPossible = true;
+            }
         }
         // else if = the current elk is the the head elk
         // makes current the head, then sets the head to the next one

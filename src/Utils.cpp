@@ -156,13 +156,15 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
     string fileName;
     string index;
 
+    // Determine the End Destination point
+    animals.CreateEndDestinationPoint();
     // Create the elk master, herd, and wolves
     animals.CreateElkHerd();
     animals.CreateWolves();
 
     // Creates the .dat files for gnuplot to plot the coordinates
     // does all the graphing. '< 20' = the amount of .pngs that get made
-    for(int i = 0; i < 20; i++)
+    for(int i = 0; i < 30; i++)
     {
         index = to_string(i); // converts numbered values to strings each loop
         // creates png file names for the graphs to be saved to each loop
@@ -382,5 +384,11 @@ bool SavingThrowsGenerator()
     return savedThrow;
 }
 
+// Generates a random number to determine the end destination point
+int EndDestinationPointRandomGenerator()
+{
+    uniform_int_distribution<int> dest(15, 50);
 
+    return dest(rGen);
+}
 
