@@ -143,8 +143,9 @@ void CreateCommandFile(fstream &foutCommand)
     foutCommand << "set terminal png" << endl;
 }
 
-// Creates the Elk and Wolves, moves the elk and wolves, and deletes the linked lists for
-// the elk and wolves
+// Creates random destination point, the Elk, and the Wolves,
+// moves the elk and wolves, and deletes the linked lists
+// after everything is plotted
 void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
 {
     // Class accessor
@@ -164,7 +165,7 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
 
     // Creates the .dat files for gnuplot to plot the coordinates
     // does all the graphing. '< 20' = the amount of .pngs that get made
-    for(int i = 0; i < 30; i++)
+    for(int i = 0; i < 20; i++)
     {
         index = to_string(i); // converts numbered values to strings each loop
         // creates png file names for the graphs to be saved to each loop
@@ -272,7 +273,7 @@ bool ElkHerdHealthyStatusRandomGenerator()
 
 // Create a dynamic function to create elk health based on
 // healthy status and age.
-// if age < 1 = negative impact on health (-25% health debuff)
+// if age == 1 = negative impact on health (-25% health debuff)
 // if healthyStatus is false = negative impact on health (-60% health debuff)
 double CreateElkHerdHealth(Animals *eHerd)
 {
@@ -280,25 +281,21 @@ double CreateElkHerdHealth(Animals *eHerd)
     uniform_real_distribution<double> edist(0, herd.hGetHealth());
 
     double elkHealth;
-    double multipliedHealth;
 
     elkHealth = edist(rGen);
 
-    if(eHerd->hGetAge() < 1)
+    if(eHerd->hGetAge() == 1)
     {
-        multipliedHealth = elkHealth * 0.25;
-        elkHealth = elkHealth - multipliedHealth;
+        elkHealth = elkHealth - (elkHealth * 0.25);
 
         if(eHerd->hGetIsHealthy() == false)
         {
-            multipliedHealth = elkHealth * 0.60;
-            elkHealth = elkHealth - multipliedHealth;
+            elkHealth = elkHealth - (elkHealth * 0.60);
         }
     }
     else if(eHerd->hGetIsHealthy() == false)
     {
-        multipliedHealth = elkHealth * 0.60;
-        elkHealth = elkHealth - multipliedHealth;
+        elkHealth = elkHealth - (elkHealth * 0.60);
     }
 
     return elkHealth; // Return health
@@ -338,17 +335,18 @@ double WolfAttackStrengthRandomGenerator()
 // critical roll of 0 = automatic successful kill
 bool SavingThrowsGenerator()
 {
-    uniform_int_distribution<int> edist(0, 20); // Generate random between 0-20
+    uniform_int_distribution<int> ranRolls(0, 20); // Generate random between 0-20
     int numberRolled = 0; // Stores the random number generated
     int successfulSave = 0; // Counts the amount of saved throws
     int unsuccessfulSave = 0; // Counts the amount of unsuccessful throws
     bool savedThrow = false; // Stores whether saved or not and then is returned
 
+    // TODO Delete after testing or move to the kill function
     cout << "ATTEMPTING KILL..." << endl;
 
     for(int i = 0; i < 5;  i++)
     {
-        numberRolled = edist(rGen);
+        numberRolled = ranRolls(rGen);
 
         if(numberRolled == 20)
         {

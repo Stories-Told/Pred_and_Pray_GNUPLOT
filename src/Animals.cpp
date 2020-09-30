@@ -135,8 +135,6 @@ void Animals::MoveElkHerd()
 
             MovementEvaluator();
 
-            cout << "ADDED X: " << animals.hGetAddedX() << " ADDED Y: " << animals.hGetAddedY() << endl;
-
             hCurrent->hSetPositionX(elkMastersXPosition);
             hCurrent->hSetPositionY(elkMastersYPosition);
         }
@@ -310,6 +308,8 @@ void Animals::MovementEvaluator()
         cout << "X: " << animals.hGetAddedX() << " Y: " << animals.hGetAddedY() << endl;
         cin.ignore();
     }
+
+    cout << "ADDED X: " << animals.hGetAddedX() << " ADDED Y: " << animals.hGetAddedY() << endl;
 }
 
 // Writes out to the .dat files (foutPositions) the newly updated positioning
@@ -370,9 +370,12 @@ void Animals::DoesWolfKillHerd()
     // Variable to keep track of the amount of no kills recorded per loop
     // if the amount of no kills = the amount of wolves, then
     // there are no more kills possible and exits the function
+    // TODO *Current bug with implementing the save throw function,
+    // there can still be kills, but a no kill possible will trigger if a(or all) elk rolls a save
     int countNoKills = 0;
     bool passedSavingThrow = false;
 
+    // Exits the function if no more kills are possible
     if (animals.noMoreKillsPossible == true)
     {
         return;
@@ -452,8 +455,8 @@ void Animals::DoesWolfKillHerd()
         else
         {
             cout << "Wolf " << wCurrent->wGetID() << " Kills elk " << hCurrent->hGetID() << endl;
-            previous->hNext = hCurrent->hNext;
 
+            previous->hNext = hCurrent->hNext;
             delete hCurrent;
         }
 
