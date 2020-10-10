@@ -77,9 +77,6 @@ class Animals
         void MoveWolves();
 
         // Start Misc
-        bool GetNoKillsPossible() { return noMoreKillsPossible; }
-        void SetNoKillsPossible(bool val) { noMoreKillsPossible = val; }
-
         double GetEndPointX() { return endPointX; }
         void SetEndPointX(double val) { endPointX = val; }
 
@@ -126,7 +123,6 @@ class Animals
         Animals *wNext;
 
         // Misc
-        bool noMoreKillsPossible;
         double endPointX;
         double endPointY;
 };

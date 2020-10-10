@@ -50,8 +50,6 @@ Animals::Animals()
     wNext = NULL;
 
     // Start Misc
-    // TODO write function that will better check if there are no more kills possible
-    noMoreKillsPossible = false;
     endPointX = 50.0;
     endPointY = 50.0;
 }
@@ -80,9 +78,11 @@ void Animals::CreateElkHerd()
         // and store it into the next link list location
         eHerd = new Animals;
 
-        // First object created will be the elk master and
+        // Last object created will be the elk master and
         // set the isElkMaster to true marking them as the master
-        if (countHerdAmount == 0 )
+        // animals.hGetNumberOfHerdAlive() - 1, make sure to minus one to make so
+        // that elk master is created as last elk
+        if (countHerdAmount == animals.hGetNumberOfHerdAlive() - 1)
         {
             eHerd->hSetID(countHerdAmount);
             eHerd->hSetIsElkMaster(true);
@@ -125,15 +125,24 @@ void Animals::MoveElkHerd()
     // Moving Positions
     double dx, dy;
 
+    // Set herd's current to herd's head to begin iterating through the
+    // linked list
     hCurrent = hHead;
     while (hCurrent != NULL)
     {
         if (hCurrent->hGetIsElkMaster() == true)
         {
+            // Stores randomly generated x and y position for elk masters
+            // position
             elkMastersXPosition = Utils::ElkMasterRandomGenerator();
             elkMastersYPosition = Utils::ElkMasterRandomGenerator();
 
+            // Calls function to make sure that the elk master always progresses
+            // towards the random generated end destionation.
+            // If elk master reaches the end destionation of x and y
+            // prints to the console telling the user
             MovementEvaluator();
+
 
             hCurrent->hSetPositionX(elkMastersXPosition);
             hCurrent->hSetPositionY(elkMastersYPosition);
@@ -231,14 +240,15 @@ void Animals::CreateEndDestinationPoint()
 // destination point
 void Animals::MovementEvaluator()
 {
-    //TODO comment everything in this function
-    // End Position Location
+    // End Position Location (where the elk master wants to get to)
     double endDestX = animals.GetEndPointX();
     double endDestY = animals.GetEndPointY();
 
     double withinThresholdMinusX, withinThresholdPlusX, withinThresholdMinusY, withinThresholdPlusY;
-    double percentAmount = 0.03;
+    double percentAmount = 0.03; // used to get the threshold percentage
 
+    // Calculate the plus and minus threshold based off of the percentAmount threshold
+    // if the elk master gets within the threshold, it is deemed as reaching the end destination
     withinThresholdMinusX = animals.GetEndPointX() - (animals.GetEndPointX() * percentAmount);
     withinThresholdPlusX = animals.GetEndPointX() + (animals.GetEndPointX() * percentAmount);
 
@@ -250,6 +260,8 @@ void Animals::MovementEvaluator()
     if (animals.hGetAddedX() < endDestX)
     {
         // Keep adding the position data up to move forward
+        // if statement making sure to make the negative number
+        // positive in order to add to the AddedX
         if (elkMastersXPosition < 0)
         {
             animals.hSetAddedX(animals.hGetAddedX() - elkMastersXPosition);
@@ -263,6 +275,8 @@ void Animals::MovementEvaluator()
     // if so than subtract from the added amount
     else if (animals.hGetAddedX() > endDestX)
     {
+        // if statement to make sure we subtract if the random number generated for
+        // elkMastersXPosition is negative
         if (elkMastersXPosition < 0)
         {
             animals.hSetAddedX(animals.hGetAddedX() + elkMastersXPosition);
@@ -277,6 +291,8 @@ void Animals::MovementEvaluator()
     // if we are less than the end point y, then keep adding
     if (animals.hGetAddedY() < endDestY)
     {
+        // if the random number generated is negative, make sure to change it to postive
+        // to keep adding
         if(elkMastersYPosition < 0)
         {
             animals.hSetAddedY(animals.hGetAddedY() - elkMastersYPosition);
@@ -290,6 +306,7 @@ void Animals::MovementEvaluator()
     // if so than subtract from the added amount
     else if(animals.hGetAddedY() > endDestY)
     {
+        // if the random number generated is ngeative makes sure to subtract from the AddedY
         if(elkMastersYPosition < 0)
         {
             animals.hSetAddedY(animals.hGetAddedY() + elkMastersYPosition);
@@ -300,6 +317,8 @@ void Animals::MovementEvaluator()
         }
     }
 
+    // if statement to check and see if the elk master falls in between the end destination threshold
+    // if it does, then output to the user saying so
     if (withinThresholdMinusX <= animals.hGetAddedX() && animals.hGetAddedX() <= withinThresholdPlusX &&
         withinThresholdMinusY <= animals.hGetAddedY() && animals.hGetAddedY() <= withinThresholdPlusY)
     {
@@ -309,6 +328,8 @@ void Animals::MovementEvaluator()
         cin.ignore();
     }
 
+    // Outputs to the console keeping track of the elk masters movement towards
+    // the randomly generated end destination
     cout << "ADDED X: " << animals.hGetAddedX() << " ADDED Y: " << animals.hGetAddedY() << endl;
 }
 
@@ -330,13 +351,19 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
              << " HEALTHY STATUS: " << hCurrent->hGetIsHealthy()
              << endl;
 
+        // if statement to plot the elk masters location
         if (hCurrent->hGetIsElkMaster() == true)
         {
-            foutPositions << animals.hGetAddedX() + hCurrent->hGetPositionX() << " "
-                          << animals.hGetAddedY() + hCurrent->hGetPositionY() << " "
+            // Uses the added x's and y's to plot the elk master's location
+            // we do not use ->hGetPositionX(Y), but you can for added position randomness.
+            foutPositions << animals.hGetAddedX() << " "
+                          << animals.hGetAddedY() << " "
                           << ".5" << endl; // ".5" size of dot
         }
 
+        // Plots the rest of the elk herd
+        // Uses the added x's, y's, and randomized x and y (hGetPositionX(Y)) to plot the elk herd
+        // We add the hGetPositionX(Y) to plot the herd randomly around the elk master
         foutPositions << animals.hGetAddedX() + hCurrent->hGetPositionX() << " "
                       << animals.hGetAddedY() + hCurrent->hGetPositionY() << " "
                       << ".15" << endl; // ".15" size of dot
@@ -367,19 +394,7 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
 // will not run (unless the animals.noMoreKillsPossible is updated back to false)
 void Animals::DoesWolfKillHerd()
 {
-    // Variable to keep track of the amount of no kills recorded per loop
-    // if the amount of no kills = the amount of wolves, then
-    // there are no more kills possible and exits the function
-    // TODO *Current bug with implementing the save throw function,
-    // there can still be kills, but a no kill possible will trigger if a(or all) elk rolls a save
-    int countNoKills = 0;
     bool passedSavingThrow = false;
-
-    // Exits the function if no more kills are possible
-    if (animals.noMoreKillsPossible == true)
-    {
-        return;
-    }
 
     // Start of the comparing loop
     // sets herd's current and wolf's current to the head node
@@ -428,16 +443,9 @@ void Animals::DoesWolfKillHerd()
         // the following if, else if, else, will conduct the correct linked
         // list deletion.
         // if = no possible kill or passed saving throws
-        // (if countNoKills = amount of wolves, then sets noMoreKillsPossible to true)
         if (hCurrent == NULL || passedSavingThrow == true)
         {
             cout << "NO KILL..." << endl;
-
-            countNoKills++;
-            if(countNoKills == animals.numberOfWolvesAlive)
-            {
-                animals.noMoreKillsPossible = true;
-            }
         }
         // else if = the current elk is the the head elk
         // makes current the head, then sets the head to the next one

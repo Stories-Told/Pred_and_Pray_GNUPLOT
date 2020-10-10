@@ -200,7 +200,6 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
 
     // Pauses gnuplot until user hits enter
     foutCommand << "pause -1" << endl;
-    //****END WRITING TO COMMAND.TXT*******
 
     // Close gnuplot command file
     foutCommand.close();
@@ -243,7 +242,7 @@ bool ElkHerdHealthyStatusRandomGenerator()
 
     // For loop to roll 3 times
     // Counts the amount of 0's and 1's rolled
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < 7; i++)
     {
         rolledNumber = edist(rGen);
 
