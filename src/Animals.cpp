@@ -381,8 +381,8 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
         cout << "WOLF: " << wCurrent->wGetID()
              << " ATTACK STRENGTH: " << wCurrent->wGetAttackStrength() << endl;
 
-        foutPositions << i + wCurrent->wGetPositionX() << " "
-                      << i + wCurrent->wGetPositionY() << " "
+        foutPositions << animals.hGetAddedX() + wCurrent->wGetPositionX() << " "
+                      << animals.hGetAddedY() + wCurrent->wGetPositionY() << " "
                       << ".1" << endl; //".1" = size of dot
 
         wCurrent = wCurrent->wGetNext();
