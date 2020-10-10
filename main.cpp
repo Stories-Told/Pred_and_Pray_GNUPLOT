@@ -11,7 +11,7 @@ using namespace std;
 
 int main()
 {
-    // Variables for creating .txt files to hold the data
+    // Variables for creating .txt/.dat files to hold the data
     fstream foutCommand; // Set up gnuplot
     fstream foutPositions; // positioning data
 

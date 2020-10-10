@@ -182,6 +182,8 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
         animals.MoveElkHerd();
         animals.MoveWolves();
         animals.WriteOutPositionData(i, foutPositions);
+        // Break out of for loop if elk master reached end destionation
+        if (animals.CheckIfReachedEndDest() == true){ foutPositions.close(); break; }
         animals.DoesWolfKillHerd();
 
         // Close positioning file
@@ -193,6 +195,13 @@ void GraphPredAndPray(fstream &foutPositions, fstream &foutCommand)
         foutCommand << "plot \'" << fileName
                     << "\' with circles linecolor rgb \"#9ACD32\" fill solid noborder"
                     << endl;
+    }
+
+    // if elk master doesn't reach the randomly generated end point
+    // output to the console letting the user know
+    if (animals.CheckIfReachedEndDest() == false)
+    {
+        cout << "ELK MASTER DID NOT REACH END DESTINATION IN ALLOTED AMOUNT OF TURNS(20)..." << endl;
     }
 
     // Delete the link lists
@@ -211,7 +220,7 @@ void RunGnuPlot()
     system("\"C:\\Program Files\\gnuplot\\bin\\wgnuplot.exe\" command.txt");
 }
 
-// Generates random number based off elk's class variable speed
+// Generates random number based off elk master's class variable speed
 double ElkMasterRandomGenerator()
 {
     // Sets elk master speed
@@ -340,7 +349,6 @@ bool SavingThrowsGenerator()
     int unsuccessfulSave = 0; // Counts the amount of unsuccessful throws
     bool savedThrow = false; // Stores whether saved or not and then is returned
 
-    // TODO Delete after testing or move to the kill function
     cout << "ATTEMPTING KILL..." << endl;
 
     for(int i = 0; i < 5;  i++)

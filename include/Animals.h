@@ -83,6 +83,9 @@ class Animals
         double GetEndPointY() { return endPointY; }
         void SetEndPointY(double val) { endPointY = val; }
 
+        bool GetEndDestReached() { return endDestReached; }
+        void SetEndDestReached(bool val) { endDestReached = val; }
+
         //---------------------------------------------------------
 
         void CreateEndDestinationPoint();
@@ -93,6 +96,8 @@ class Animals
 
         void ChangeElkHerdAmount();
         void ChangeWolvesAmount();
+
+        bool CheckIfReachedEndDest();
 
     private:
 
@@ -125,6 +130,7 @@ class Animals
         // Misc
         double endPointX;
         double endPointY;
+        bool endDestReached;
 };
 
 #endif // ANIMALS_H

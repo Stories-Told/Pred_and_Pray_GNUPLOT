@@ -19,7 +19,6 @@ Animals *previous = NULL;
 Animals *wHead = NULL;
 Animals *wCurrent = NULL;
 
-// TODO TESTING (Move out of global scope later)
 // Variables to save the elk masters position
 double elkMastersXPosition;
 double elkMastersYPosition;
@@ -41,7 +40,7 @@ Animals::Animals()
     hNext = NULL;
 
     // Start wolves
-    wSpeed = 1.5; // TODO reset to 5.0 after testing
+    wSpeed = 1.5;
     wPositionX = 0.0;
     wPositionY = 0.0;
     wAttackStrength = 45.0;
@@ -52,6 +51,7 @@ Animals::Animals()
     // Start Misc
     endPointX = 50.0;
     endPointY = 50.0;
+    endDestReached = false;
 }
 
 Animals::~Animals()
@@ -245,7 +245,7 @@ void Animals::MovementEvaluator()
     double endDestY = animals.GetEndPointY();
 
     double withinThresholdMinusX, withinThresholdPlusX, withinThresholdMinusY, withinThresholdPlusY;
-    double percentAmount = 0.03; // used to get the threshold percentage
+    double percentAmount = 0.05; // used to get the threshold percentage
 
     // Calculate the plus and minus threshold based off of the percentAmount threshold
     // if the elk master gets within the threshold, it is deemed as reaching the end destination
@@ -320,17 +320,22 @@ void Animals::MovementEvaluator()
     // if statement to check and see if the elk master falls in between the end destination threshold
     // if it does, then output to the user saying so
     if (withinThresholdMinusX <= animals.hGetAddedX() && animals.hGetAddedX() <= withinThresholdPlusX &&
-        withinThresholdMinusY <= animals.hGetAddedY() && animals.hGetAddedY() <= withinThresholdPlusY)
+            withinThresholdMinusY <= animals.hGetAddedY() && animals.hGetAddedY() <= withinThresholdPlusY)
     {
         cin.ignore();
         cout << "REACHED DESTINATION..." << endl;
         cout << "X: " << animals.hGetAddedX() << " Y: " << animals.hGetAddedY() << endl;
-        cin.ignore();
+        cout << "END DEST X: " << animals.GetEndPointX() << " END DEST Y: " << animals.GetEndPointY() << endl;
+        animals.SetEndDestReached(true);
     }
 
     // Outputs to the console keeping track of the elk masters movement towards
     // the randomly generated end destination
-    cout << "ADDED X: " << animals.hGetAddedX() << " ADDED Y: " << animals.hGetAddedY() << endl;
+    if (animals.GetEndDestReached() == false)
+    {
+        cout << "ADDED X: " << animals.hGetAddedX() << " ADDED Y: " << animals.hGetAddedY() << endl;
+    }
+
 }
 
 // Writes out to the .dat files (foutPositions) the newly updated positioning
@@ -344,12 +349,16 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
     hCurrent = hHead;
     while(hCurrent != NULL)
     {
-        //TODO delete after testing
-        cout << "HERD: " << hCurrent->hGetID() << " HEALTH: " << hCurrent->hGetHealth()
-             << " IS MASTER?: " << hCurrent->hGetIsElkMaster()
-             << " AGE: " << hCurrent->hGetAge()
-             << " HEALTHY STATUS: " << hCurrent->hGetIsHealthy()
-             << endl;
+        // Prints the elk herd to the console until end destination is reached
+        if (animals.CheckIfReachedEndDest() == false)
+        {
+            cout << "HERD: " << hCurrent->hGetID() << " HEALTH: " << hCurrent->hGetHealth()
+                 << " IS MASTER?: " << hCurrent->hGetIsElkMaster()
+                 << " AGE: " << hCurrent->hGetAge()
+                 << " HEALTHY STATUS: " << hCurrent->hGetIsHealthy()
+                 << endl;
+        }
+
 
         // if statement to plot the elk masters location
         if (hCurrent->hGetIsElkMaster() == true)
@@ -377,10 +386,12 @@ void Animals::WriteOutPositionData(int i, fstream &foutPositions)
     wCurrent = wHead;
     while (wCurrent != NULL)
     {
-        //TODO delete after testing
-        cout << "WOLF: " << wCurrent->wGetID()
-             << " ATTACK STRENGTH: " << wCurrent->wGetAttackStrength() << endl;
-
+        // Prints the wolves to the console until end destination is reached
+        if (animals.CheckIfReachedEndDest() == false)
+        {
+            cout << "WOLF: " << wCurrent->wGetID()
+                 << " ATTACK STRENGTH: " << wCurrent->wGetAttackStrength() << endl;
+        }
         foutPositions << animals.hGetAddedX() + wCurrent->wGetPositionX() << " "
                       << animals.hGetAddedY() + wCurrent->wGetPositionY() << " "
                       << ".1" << endl; //".1" = size of dot
@@ -520,4 +531,12 @@ void Animals::ChangeWolvesAmount()
     cout << endl;
 
     animals.wSetNumberOfWolvesAlive(userWolvesAmount);
+}
+
+// Check if elk master reached the end destination
+bool Animals::CheckIfReachedEndDest()
+{
+    bool elkMasterEndDest = animals.GetEndDestReached();
+
+    return elkMasterEndDest;
 }
